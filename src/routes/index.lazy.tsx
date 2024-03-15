@@ -1,57 +1,90 @@
-import {createLazyFileRoute, useNavigate} from '@tanstack/react-router'
+import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
 import Button from "../components/Button.tsx";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export const Route = createLazyFileRoute('/')({
-    component: Index,
-})
+export const Route = createLazyFileRoute("/")({
+  component: Index,
+});
 
 type Game = {
-    id: number;
-    type: string;
-    nbPlayers: number;
-    status: string;
-}
+  code: string;
+  type: string;
+  nbPlayers: number;
+  status: string;
+};
 
 function Index() {
-    const navigate = useNavigate();
-    const [games, setGames] = useState<Game[]>([]);
+  const navigate = useNavigate();
+  const [games, setGames] = useState<Game[]>([]);
 
-    useEffect(() => {
-        fetch("http://localhost:3000/games")
-            .then(response => response.json())
-            .then((data: Game[]) => setGames(data));
-    }, []);
+  useEffect(() => {
+    fetch("http://localhost:3000/games")
+      .then((response) => response.json())
+      .then((data: Game[]) => setGames(data));
+  }, []);
 
-    return (
-        <div className="p-2">
-            <Button onClick={() => navigate({to: '/new-game'})}>Go to about</Button>
-            <h1 className="text-2xl">Hello World</h1>
+  const createNewGame = () => {
+    // post request to create a new game, return will be the plain text code, not json
+    fetch("http://localhost:3000/games", {
+      method: "POST",
+    })
+      .then((response) => response.text())
+      .then((gameId) =>
+        navigate({
+          to: "/new-game/$gameId",
+          params: {
+            gameId,
+          },
+        }),
+      );
+  };
 
-            <div className="overflow-x-auto">
-                <div className="overflow-x-auto">
-                    <table className="table">
-                        <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Number of players</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {games.map(game => (
-                            <tr key={game.id}>
-                                <td>{game.id}</td>
-                                <td>{game.type}</td>
-                                <td>{game.nbPlayers}</td>
-                                <td>{game.status}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  const deleteGame = (gameCode: string): void => {
+    fetch(`http://localhost:3000/games/${gameCode}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.text())
+      .then(() => setGames(games.filter((game) => game.code !== gameCode)));
+  };
+
+  return (
+    <div className="p-2">
+      <Button onClick={createNewGame}>Créer une partie</Button>
+      <h1 className="text-2xl">Hello World</h1>
+
+      <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Players</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {games.map((game) => (
+                <tr key={game.code}>
+                  <td>{game.code}</td>
+                  <td>{game.type}</td>
+                  <td>{game.nbPlayers}</td>
+                  <td>{game.status}</td>
+                  <td>
+                    <FontAwesomeIcon
+                      onClick={() => deleteGame(game.code)}
+                      icon="trash"
+                      color={"primary"}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-    )
+      </div>
+    </div>
+  );
 }

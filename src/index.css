@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+img.qr-code {
+    filter: brightness(0)
+}
+
+#app, #route-base, html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
