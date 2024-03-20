@@ -5,6 +5,8 @@ import "./index.css";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { store } from "./store/store.ts";
+import { Provider } from "react-redux";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -20,5 +22,9 @@ declare module "@tanstack/react-router" {
 const rootElement = document.getElementById("app")!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
-  root.render(<RouterProvider router={router} />);
+  root.render(
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>,
+  );
 }

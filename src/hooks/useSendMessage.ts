@@ -1,13 +1,13 @@
 import useWebSocket from "react-use-websocket";
-import { WebsocketTopic } from "../models/websocketMessage.ts";
+import { WebSocketTopic } from "../models/WebSocketTopic";
+import { MessageMap } from "../models/WebsocketMessage.ts";
 
-export const useSendMessage = (
-  topic: WebsocketTopic,
-): ((message: unknown) => void) => {
+export const useSendMessage = <T extends WebSocketTopic>(
+  topic: T,
+): ((message: MessageMap[T]) => void) => {
   const { sendMessage } = useWebSocket(import.meta.env.VITE_WS_URL);
 
-  return (message: unknown): void => {
-    console.log("sendMessage", JSON.stringify({ topic, message }));
+  return (message: MessageMap[T]): void => {
     sendMessage(
       JSON.stringify({
         topic,

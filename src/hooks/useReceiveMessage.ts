@@ -1,16 +1,20 @@
 import useWebSocket from "react-use-websocket";
+import { WebSocketTopic } from "../models/WebSocketTopic.ts";
 import {
-  WebsocketMessage,
-  WebsocketTopic,
-} from "../models/websocketMessage.ts";
+  MessageResponseMap,
+  WebsocketMessageResponse,
+} from "../models/websocketMessageResponse.ts";
 
-export const useReceiveMessage = <T>(topic: WebsocketTopic): T | undefined => {
-  const { lastJsonMessage } = useWebSocket<WebsocketMessage>(
+export const useReceiveMessage = <T extends WebSocketTopic>(
+  topic: T,
+): MessageResponseMap[T] | undefined => {
+  const { lastJsonMessage } = useWebSocket<WebsocketMessageResponse<T>>(
     import.meta.env.VITE_WS_URL,
   );
 
-  console.log("lastJsonMessage", lastJsonMessage);
   return lastJsonMessage?.topic === topic
-    ? (JSON.parse(lastJsonMessage.message) as T)
+    ? (JSON.parse(
+        lastJsonMessage.message as unknown as string,
+      ) as MessageResponseMap[T])
     : undefined;
 };
